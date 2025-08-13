@@ -5,7 +5,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://nisusansu.github.io',         // GitHub Pages
+  ],
+  methods: ['GET'],
+  allowedHeaders: ['Content-Type']
+}));
 
 const API_KEY = process.env.YT_API_KEY;
 const CHANNEL_ID = 'UCg4nOl7_gtStrLwF0_xoV0A'; // SeikinTVのチャンネルID
@@ -59,3 +65,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
