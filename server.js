@@ -14,7 +14,7 @@ app.use(cors());
 // プレイリストの動画一覧を取得
 app.get('/videos', async (req, res) => {
   try {
-    const channelId = req.query.channelId || 'UCaH8RKE2jzE4uONd9v9n0fA'; // 例: SeikinTV
+    const channelId = req.query.channelId || 'UCg4nOl7_gtStrLwF0_xoV0A'; // 例: SeikinTV
     // uploadsプレイリストID取得
     const chRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`);
     const chData = await chRes.json();
@@ -39,3 +39,4 @@ app.get('/videos', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`YouTube proxy running on port ${PORT}`);
 });
+
