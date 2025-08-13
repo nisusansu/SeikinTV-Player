@@ -280,7 +280,7 @@
     }
 
     document.getElementById('startBtn').onclick = async () => {
-      const res = await fetch('https://nisusansu.github.io/SeikinTV-Player/');
+      const res = await fetch('https://seikintv-player.onrender.com');
       const data = await res.json();
       if (!data.ok) {
         alert('動画取得失敗: ' + data.error);
@@ -338,4 +338,5 @@
   </script>
 </body>
 </html>
+
 
