@@ -280,7 +280,7 @@
     }
 
     document.getElementById('startBtn').onclick = async () => {
-      const res = await fetch('https://seikintv-player.onrender.com');
+      const res = await fetch('https://seikintv-player.onrender.com/videos?channelId=UCg4nOl7_gtStrLwF0_xoV0A');
       const data = await res.json();
       if (!data.ok) {
         alert('動画取得失敗: ' + data.error);
@@ -338,5 +338,6 @@
   </script>
 </body>
 </html>
+
 
 
