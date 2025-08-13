@@ -2,41 +2,60 @@ import express from 'express';
 import fetch from 'node-fetch';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 10000;
-const API_KEY = process.env.YOUTUBE_API_KEY;
-
 app.use(cors());
 
-// プレイリストの動画一覧を取得
+const API_KEY = process.env.YOUTUBE_API_KEY;
+const CHANNEL_ID = 'UCg4nOl7_gtStrLwF0_xoV0A'; // SeikinTVのチャンネルID
+
+// 「uploads」プレイリストIDを取得
+async function getUploadsPlaylistId(channelId) {
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!data.items || data.items.length === 0) throw new Error('チャンネルが見つかりません');
+  return data.items[0].contentDetails.relatedPlaylists.uploads;
+}
+
+// uploadsプレイリストから全動画を取得
+async function getAllVideosFromPlaylist(playlistId) {
+  let videos = [];
+  let pageToken = '';
+  const videoIds = new Set();
+
+  do {
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${pageToken}&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.items) {
+      for (const item of data.items) {
+        const videoId = item.snippet.resourceId.videoId;
+        if (!videoIds.has(videoId)) {
+          videoIds.add(videoId);
+          videos.push(item);
+        }
+      }
+    }
+    pageToken = data.nextPageToken || '';
+  } while (pageToken);
+
+  return videos;
+}
+
 app.get('/videos', async (req, res) => {
   try {
-    const channelId = req.query.channelId || 'UCg4nOl7_gtStrLwF0_xoV0A'; // 例: SeikinTV
-    // uploadsプレイリストID取得
-    const chRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`);
-    const chData = await chRes.json();
-    if (!chData.items || !chData.items[0]) {
-      return res.json({ ok: false, error: 'チャンネル情報取得失敗' });
-    }
-
-    const uploadsId = chData.items[0].contentDetails.relatedPlaylists.uploads;
-
-    // uploadsプレイリストの動画取得
-    const listRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsId}&key=${API_KEY}`);
-    const listData = await listRes.json();
-
-    res.json({ ok: true, videos: listData.items || [] });
-  } catch (err) {
-    console.error(err);
-    res.json({ ok: false, error: err.message });
+    const playlistId = await getUploadsPlaylistId(CHANNEL_ID);
+    const videos = await getAllVideosFromPlaylist(playlistId);
+    res.json({ ok: true, videos });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-// サーバー起動
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`YouTube proxy running on port ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 });
-
