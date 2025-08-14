@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <!-- 重要：スマホで正しい幅を使わせる -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SeikinTV 全動画ランダム再生 + サムネ10連ガチャ</title>
   <style>
     :root { --gap: 14px; }
@@ -13,7 +15,7 @@
       display: flex;
       flex-direction: column;
     }
-    h1 { margin: 0 0 16px; }
+    h1 { margin: 0 0 16px; font-size: 1.4rem; }
 
     /* PCレイアウト：横並び */
     .app {
@@ -26,6 +28,7 @@
 
     /* スマホ・タブレット：縦並び（YouTube風） */
     @media (max-width: 920px) {
+      body { padding: 10px; }
       .app {
         flex-direction: column;
         height: auto;
@@ -33,17 +36,21 @@
       .player-card {
         order: 1;
         flex: none;
+        min-height: auto;
       }
       .gacha-card {
         order: 2;
         flex: none;
         margin-top: var(--gap);
+        max-height: none;
       }
-      /* サムネサイズを少し大きくする */
+      /* サムネ2列 */
       #gachaGrid {
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
       }
+      /* プレイヤー高さを確保しすぎない */
+      #player { min-height: 200px; height: 220px; }
     }
 
     .card {
@@ -63,7 +70,7 @@
       display: flex;
       flex-direction: column;
     }
-    .controls { display: flex; gap: 10px; margin-bottom: 10px; }
+    .controls { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
     .btn {
       padding: 10px 14px;
       border-radius: 10px;
@@ -72,6 +79,7 @@
       color: #fff;
       font-weight: 600;
       cursor: pointer;
+      font-size: 14px;
     }
     .btn[disabled] { opacity: .5; cursor: not-allowed; }
     #now {
@@ -84,7 +92,7 @@
       flex-wrap: wrap;
     }
     img.thumb {
-      width: 120px;
+      width: 100px;
       height: auto;
       object-fit: cover;
       border-radius: 10px;
@@ -96,7 +104,7 @@
     #player {
       flex-grow: 1;
       position: relative;
-      min-height: 200px;
+      min-height: 300px;
     }
     #player iframe {
       position: absolute;
@@ -353,7 +361,3 @@
   </script>
 </body>
 </html>
-
-
-
-
