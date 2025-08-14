@@ -194,6 +194,41 @@
       padding: 20px;
       text-align: center;
     }
+    /* 共通サムネイル設定 */
+  .gacha-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  /* サムネイル画像 */
+  .gacha-thumbnails img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* PC用レイアウト（例: 5列） */
+  @media (min-width: 1025px) {
+    .gacha-thumbnails img {
+      width: calc(20% - 10px);
+    } 
+  }
+
+/* タブレット用レイアウト（例: 3列） */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .gacha-thumbnails img {
+    width: calc(33.33% - 10px);
+  }
+}
+
+/* スマホ用レイアウト（例: 2列） */
+@media (max-width: 600px) {
+  .gacha-thumbnails img {
+    width: calc(50% - 10px);
+  }
+}
   </style>
 </head>
 <body>
@@ -361,3 +396,4 @@
   </script>
 </body>
 </html>
+
