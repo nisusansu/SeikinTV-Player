@@ -15,17 +15,34 @@
     }
     h1 { margin: 0 0 16px; }
 
+    /* PCレイアウト：横並び */
     .app {
       flex: 1 1 auto;
       display: flex;
       gap: var(--gap);
-      height: 80vh; /* ウィンドウ高さの80% */
+      height: 80vh;
       align-items: stretch;
     }
+
+    /* スマホ・タブレット：縦並び（YouTube風） */
     @media (max-width: 920px) {
       .app {
         flex-direction: column;
         height: auto;
+      }
+      .player-card {
+        order: 1;
+        flex: none;
+      }
+      .gacha-card {
+        order: 2;
+        flex: none;
+        margin-top: var(--gap);
+      }
+      /* サムネサイズを少し大きくする */
+      #gachaGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
       }
     }
 
@@ -66,7 +83,6 @@
       gap: 12px;
       flex-wrap: wrap;
     }
-    /* サムネイルを小さく */
     img.thumb {
       width: 120px;
       height: auto;
@@ -146,25 +162,24 @@
       user-select: none;
     }
     .title-ovl {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
-    color: #fff;
-    font-size: 12px;
-    padding: 28px 8px 8px;
-    line-height: 1.3;
-    text-shadow: 0 1px 2px rgba(0,0,0,.5);
-    max-height: 80%;
-    overflow: hidden;
-    display: none;  /* 普段は非表示 */
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    pointer-events: none;
-  }
-
-.gacha-item:hover .title-ovl {
-  display: -webkit-box;  /* hover時にだけ表示 */
-}
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
+      color: #fff;
+      font-size: 12px;
+      padding: 28px 8px 8px;
+      line-height: 1.3;
+      text-shadow: 0 1px 2px rgba(0,0,0,.5);
+      max-height: 80%;
+      overflow: hidden;
+      display: none;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      pointer-events: none;
+    }
+    .gacha-item:hover .title-ovl {
+      display: -webkit-box;
+    }
     .empty-hint {
       color: #666;
       font-size: 14px;
@@ -338,6 +353,7 @@
   </script>
 </body>
 </html>
+
 
 
 
