@@ -2,9 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <!-- 重要：スマホで正しい幅を使わせる -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SeikinTV 全動画ランダム再生 + サムネ10連ガチャ</title>
+  <title>SeikinTV 全動画ランダム再生 + サムネ10連ガチャ + チェックリスト</title>
   <style>
     :root { --gap: 14px; }
     * { box-sizing: border-box; }
@@ -17,7 +16,6 @@
     }
     h1 { margin: 0 0 16px; font-size: 1.4rem; }
 
-    /* PCレイアウト：横並び */
     .app {
       flex: 1 1 auto;
       display: flex;
@@ -26,37 +24,13 @@
       align-items: stretch;
     }
 
-    /* スマホ・タブレット：縦並び（YouTube風） */
+    /* スマホレイアウト */
     @media (max-width: 920px) {
       body { padding: 10px; }
-      .app {
-        flex-direction: column;
-        height: auto;
-      }
-      .player-card {
-        order: 1;
-        flex: none;
-        min-height: auto;
-      }
-      .gacha-card {
-        order: 2;
-        flex: none;
-        margin-top: var(--gap);
-        max-height: none;
-      }
-      /* サムネ横スクロールに変更 */
-      #gachaGrid {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 6px;
-      }
-      .gacha-item {
-        flex: 0 0 calc(50% - 6px); /* 横2列分の幅 */
-        aspect-ratio: 16 / 9;
-      }
-      #player { min-height: 200px; height: 220px; }
+      .app { flex-direction: column; height: auto; }
+      .player-card { order: 1; flex: none; }
+      .gacha-card { order: 2; flex: none; margin-top: var(--gap); }
+      .checklist-card { order: 3; flex: none; margin-top: var(--gap); max-height: 300px; }
     }
 
     .card {
@@ -69,165 +43,61 @@
       overflow: hidden;
     }
 
-    /* 左カラム: プレイヤー */
-    .player-card {
-      flex: 3 1 0;
-      min-width: 300px;
-      display: flex;
-      flex-direction: column;
-    }
-    .controls { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-    .btn {
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: none;
-      background: #111;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn[disabled] { opacity: .5; cursor: not-allowed; }
-    #now {
-      margin: 10px 0 14px;
-      font-weight: bold;
-      line-height: 1.6;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    img.thumb {
-      width: 100px;
-      height: auto;
-      object-fit: cover;
-      border-radius: 10px;
-      display: block;
-      flex-shrink: 0;
-    }
-
-    /* プレイヤー動画領域 */
-    #player {
-      flex-grow: 1;
-      position: relative;
-      min-height: 300px;
-    }
+    /* プレイヤー */
+    .player-card { flex: 3 1 0; min-width: 300px; }
+    #player { flex-grow: 1; min-height: 300px; position: relative; }
     #player iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 10px;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 10px;
     }
 
-    /* 右カラム: ガチャ */
-    .gacha-card {
-      flex: 1 1 0;
-      min-width: 280px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .gacha-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-shrink: 0;
-    }
-    .gacha-title { font-weight: 800; }
-
-    /* PC用グリッド表示 */
+    /* ガチャ */
+    .gacha-card { flex: 1 1 0; min-width: 280px; overflow-y: auto; }
     #gachaGrid {
       flex-grow: 1;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      overflow-y: auto;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
     }
 
-    .gacha-item {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      aspect-ratio: 16 / 9;
-      background: #eee;
-      transition: transform .08s ease-in-out;
-    }
-    .gacha-item:hover { transform: translateY(-2px); }
-    .gacha-thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .badge {
-      position: absolute;
-      left: 8px;
-      top: 8px;
-      background: rgba(0,0,0,.7);
-      color: #fff;
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      user-select: none;
-    }
-    .title-ovl {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
-      color: #fff;
-      font-size: 12px;
-      padding: 28px 8px 8px;
-      line-height: 1.3;
-      text-shadow: 0 1px 2px rgba(0,0,0,.5);
-      max-height: 80%;
-      overflow: hidden;
-      display: none;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      pointer-events: none;
-    }
-    .gacha-item:hover .title-ovl {
-      display: -webkit-box;
-    }
-    .empty-hint {
-      color: #666;
-      font-size: 14px;
-      padding: 20px;
-      text-align: center;
-    }
+    .gacha-item { position: relative; border-radius: 12px; overflow: hidden; cursor: pointer; aspect-ratio: 16/9; }
+    .gacha-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .badge { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,.7); color: #fff; padding: 2px 6px; border-radius: 999px; font-size: 11px; }
+    .title-ovl { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0)); color: #fff; font-size: 12px; padding: 28px 8px 8px; display: none; }
+    .gacha-item:hover .title-ovl { display: block; }
+
+    /* チェックリスト */
+    .checklist-card { flex: 1 1 0; min-width: 280px; overflow-y: auto; }
+    .checklist-header { font-weight: 800; margin-bottom: 10px; }
+    .checklist { list-style: none; padding: 0; margin: 0; font-size: 14px; max-height: 100%; overflow-y: auto; }
+    .checklist li { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+    .checklist input[type="checkbox"] { transform: scale(1.2); }
   </style>
 </head>
 <body>
   <h1>SeikinTV 全動画ランダム再生</h1>
 
   <div class="app">
-    <!-- 左カラム：プレイヤー -->
+    <!-- プレイヤー -->
     <div class="card player-card">
       <div class="controls">
         <button id="startBtn" class="btn">再生開始</button>
         <button id="nextBtn" class="btn" disabled>次の動画へ</button>
       </div>
-
       <div id="now">準備中...</div>
       <div id="player"></div>
     </div>
 
-    <!-- 右カラム：セイキンサムネ10連ガチャ -->
+    <!-- ガチャ -->
     <div class="card gacha-card">
       <div class="gacha-header">
         <div class="gacha-title">🎰 セイキンサムネ 10連ガチャ</div>
         <button id="rollBtn" class="btn" disabled>もう一回！</button>
       </div>
-      <div id="gachaGrid">
-        <div class="empty-hint">左の「再生開始」で動画リストを読み込み後、ここに10連が出ます。</div>
-      </div>
+      <div id="gachaGrid"><div class="empty-hint">左の「再生開始」で動画リストを読み込み後、ここに10連が出ます。</div></div>
+    </div>
+
+    <!-- チェックリスト -->
+    <div class="card checklist-card">
+      <div class="checklist-header">✅ 視聴済みチェックリスト</div>
+      <ul id="checklist" class="checklist"></ul>
     </div>
   </div>
 
@@ -235,6 +105,7 @@
     let player;
     let videos = [];
     let playQueue = [];
+    let watched = new Set();
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -259,27 +130,23 @@
     function play(v) {
       if (!v) return;
       const title = v.snippet?.title ?? "タイトル不明";
-      const thumb = v.snippet?.thumbnails?.high?.url || v.snippet?.thumbnails?.default?.url || "";
+      const thumb = v.snippet?.thumbnails?.high?.url || "";
       const vid   = v.snippet?.resourceId?.videoId;
 
       document.getElementById('now').innerHTML = `
-        <img class="thumb" src="${thumb}" alt="thumbnail" />
-        <div>
-          タイトル: ${title}<br/>
-          投稿日時: ${fmtJST(v.snippet?.publishedAt)}
-        </div>
+        <img class="thumb" src="${thumb}" />
+        <div>タイトル: ${title}<br/>投稿日時: ${fmtJST(v.snippet?.publishedAt)}</div>
       `;
 
       if (vid) {
         player.loadVideoById(vid);
+        markWatched(vid);
       } else {
-        console.warn("videoIdなし。スキップします。", v);
         play(nextVideo());
       }
     }
 
     function pickUniqueRandom(source, count) {
-      if (source.length <= count) return [...source];
       const arr = [...source];
       shuffle(arr);
       return arr.slice(0, count);
@@ -290,38 +157,51 @@
       grid.innerHTML = '';
       items.forEach((v, i) => {
         const title = v.snippet?.title ?? '';
-        const thumb = v.snippet?.thumbnails?.medium?.url || v.snippet?.thumbnails?.high?.url || v.snippet?.thumbnails?.default?.url || '';
+        const thumb = v.snippet?.thumbnails?.medium?.url || '';
         const vid   = v.snippet?.resourceId?.videoId;
         const card = document.createElement('div');
         card.className = 'gacha-item';
-        card.title = title;
-
         card.innerHTML = `
-          ${thumb ? `<img class="gacha-thumb" src="${thumb}" alt="">` : ''}
+          ${thumb ? `<img class="gacha-thumb" src="${thumb}">` : ''}
           <div class="badge">${i+1}</div>
           <div class="title-ovl">${title}</div>
         `;
-
-        card.onclick = () => {
-          play(v);
-        };
-
+        card.onclick = () => play(v);
         grid.appendChild(card);
       });
+    }
+
+    function renderChecklist() {
+      const ul = document.getElementById('checklist');
+      ul.innerHTML = '';
+      videos.forEach(v => {
+        const vid = v.snippet?.resourceId?.videoId;
+        const title = v.snippet?.title ?? '';
+        const li = document.createElement('li');
+        const cb = document.createElement('input');
+        cb.type = "checkbox";
+        cb.checked = watched.has(vid);
+        cb.disabled = true; // 自動でつくのみ
+        li.appendChild(cb);
+        li.appendChild(document.createTextNode(title));
+        ul.appendChild(li);
+      });
+    }
+
+    function markWatched(vid) {
+      watched.add(vid);
+      renderChecklist();
     }
 
     document.getElementById('startBtn').onclick = async () => {
       const res = await fetch('https://seikintv-player.onrender.com/videos?channelId=UCg4nOl7_gtStrLwF0_xoV0A');
       const data = await res.json();
-      if (!data.ok) {
-        alert('動画取得失敗: ' + data.error);
-        return;
-      }
+      if (!data.ok) { alert('動画取得失敗: ' + data.error); return; }
       videos = data.videos;
-      playQueue = [...videos];
-      shuffle(playQueue);
+      playQueue = [...videos]; shuffle(playQueue);
 
       play(nextVideo());
+      renderChecklist();
       rollGacha();
 
       document.getElementById('nextBtn').disabled = false;
@@ -329,18 +209,12 @@
       document.getElementById('rollBtn').disabled = false;
     };
 
-    document.getElementById('nextBtn').onclick = () => {
-      play(nextVideo());
-    };
-
-    document.getElementById('rollBtn').onclick = () => {
-      rollGacha();
-    };
+    document.getElementById('nextBtn').onclick = () => play(nextVideo());
+    document.getElementById('rollBtn').onclick = () => rollGacha();
 
     function rollGacha() {
       if (!videos.length) return;
-      const ten = pickUniqueRandom(videos, 10);
-      renderGacha(ten);
+      renderGacha(pickUniqueRandom(videos, 10));
     }
 
     const tag = document.createElement('script');
@@ -349,19 +223,12 @@
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
-        height: '100%',
-        width: '100%',
-        videoId: '',
+        height: '100%', width: '100%', videoId: '',
         events: {
           onStateChange: (e) => {
-            if (e.data === YT.PlayerState.ENDED) {
-              play(nextVideo());
-            }
+            if (e.data === YT.PlayerState.ENDED) play(nextVideo());
           },
-          onError: (e) => {
-            console.warn("再生エラー。スキップします。", e.data);
-            play(nextVideo());
-          }
+          onError: () => play(nextVideo())
         }
       });
     }
