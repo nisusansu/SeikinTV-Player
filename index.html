@@ -215,6 +215,9 @@
     .checklist-title {
       font-weight: 800;
       margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     #checklist {
       flex-grow: 1;
@@ -231,6 +234,10 @@
     .check-item.checked {
       color: #777;
       text-decoration: line-through;
+    }
+    select.sort-select {
+      padding: 4px 6px;
+      border-radius: 6px;
     }
   </style>
 </head>
@@ -262,7 +269,14 @@
 
     <!-- ✅ 新規追加：動画チェックリスト -->
     <div class="card checklist-card">
-      <div class="checklist-title">✅ 視聴チェックリスト</div>
+      <div class="checklist-title">
+        ✅ 視聴チェックリスト
+        <select id="sortSelect" class="sort-select">
+          <option value="date">投稿日時順</option>
+          <option value="watched">視聴済み順</option>
+          <option value="title">タイトル順</option>
+        </select>
+      </div>
       <div id="checklist">
         <div class="empty-hint">再生開始すると全動画リストがここに出ます。</div>
       </div>
@@ -274,6 +288,7 @@
     let videos = [];
     let playQueue = [];
     let watchedSet = new Set(); // ✅ 視聴済みを管理
+    let currentSort = "date";   // ✅ ソート基準
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -389,12 +404,28 @@
     function renderChecklist() {
       const list = document.getElementById('checklist');
       list.innerHTML = '';
-      videos.forEach((v) => {
+
+      let sorted = [...videos];
+      if (currentSort === "date") {
+        sorted.sort((a,b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt));
+      } else if (currentSort === "title") {
+        sorted.sort((a,b) => (a.snippet.title||"").localeCompare(b.snippet.title||""));
+      } else if (currentSort === "watched") {
+        sorted.sort((a,b) => {
+          const aw = watchedSet.has(a.snippet.resourceId.videoId) ? 1 : 0;
+          const bw = watchedSet.has(b.snippet.resourceId.videoId) ? 1 : 0;
+          return bw - aw;
+        });
+      }
+
+      sorted.forEach((v) => {
         const vid   = v.snippet?.resourceId?.videoId;
         const title = v.snippet?.title ?? "タイトル不明";
+        const date  = v.snippet?.publishedAt;
         const item = document.createElement('div');
         item.className = 'check-item';
         item.dataset.vid = vid;
+        item.dataset.date = date;
         item.innerHTML = `
           <input type="checkbox" disabled />
           <span>${title}</span>
@@ -414,6 +445,12 @@
         }
       });
     }
+
+    // ✅ ソート切替イベント
+    document.getElementById("sortSelect").onchange = (e) => {
+      currentSort = e.target.value;
+      renderChecklist();
+    };
 
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
